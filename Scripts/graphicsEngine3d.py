@@ -1,9 +1,10 @@
 import math
 import pygame
 import copy
-from Scripts.geometry import Vector, Triangle, Mesh, create_mesh
-from Scripts.projection import multiply_matrix_vector, mat4x4
+from Scripts.geometry import *
+from Scripts.projection import *
 from Lib.meshes import *
+from Lib.colors import *
 
 """
 
@@ -45,7 +46,7 @@ class ge3d:
 
         return True
 
-    def on_user_update(self, screen, color, fElapsedTime) -> bool:
+    def on_user_update(self, screen, fElapsedTime, wireframe=False) -> bool:
 
         # rotation matrices
         matRotZ = mat4x4()
@@ -94,36 +95,71 @@ class ge3d:
             triTranslated.vects[1].z = triRotatedZX.vects[1].z + 3.0
             triTranslated.vects[2].z = triRotatedZX.vects[2].z + 3.0
 
-            # converting our 3d coordinates into a 2d space
-            multiply_matrix_vector(triTranslated.vects[0], triProjected.vects[0], self.matProj)
-            multiply_matrix_vector(triTranslated.vects[1], triProjected.vects[1], self.matProj)
-            multiply_matrix_vector(triTranslated.vects[2], triProjected.vects[2], self.matProj)
+            # Normals
+            normal = Vector()
+            line1 = Vector()
+            line2 = Vector()
+            camera = Vector()
 
-            # scale
-            mult = 0.5
+            line1.x = triTranslated.vects[1].x - triTranslated.vects[0].x
+            line1.y = triTranslated.vects[1].y - triTranslated.vects[0].y
+            line1.z = triTranslated.vects[1].z - triTranslated.vects[0].z
 
-            triProjected.vects[0].x += 1.0
-            triProjected.vects[0].y += 1.0
+            line2.x = triTranslated.vects[2].x - triTranslated.vects[0].x
+            line2.y = triTranslated.vects[2].y - triTranslated.vects[0].y
+            line2.z = triTranslated.vects[2].z - triTranslated.vects[0].z
 
-            triProjected.vects[1].x += 1.0
-            triProjected.vects[1].y += 1.0
+            normal.x = line1.y * line2.z - line1.z * line2.y
+            normal.y = line1.z * line2.x - line1.x * line2.z
+            normal.z = line1.x * line2.y - line1.y * line2.x
 
-            triProjected.vects[2].x += 1.0
-            triProjected.vects[2].y += 1.0
+            normalize(normal)
+            normal_dp = dot_product(normal, triTranslated, camera)
 
-            triProjected.vects[0].x *= mult * self.screen_width
-            triProjected.vects[0].y *= mult * self.screen_height
-            triProjected.vects[1].x *= mult * self.screen_width
-            triProjected.vects[1].y *= mult * self.screen_height
-            triProjected.vects[2].x *= mult * self.screen_width
-            triProjected.vects[2].y *= mult * self.screen_height
+            # display verts that exist behind normals
+            if normal_dp < 0:
 
-            # converting our 3d coordinates to a 2d space
-            fProjected = [
-                [triProjected.vects[0].x, triProjected.vects[0].y],
-                [triProjected.vects[1].x, triProjected.vects[1].y],
-                [triProjected.vects[2].x, triProjected.vects[2].y]
-            ]
+                # illumintaion
+                light = Vector(0, 0, -1)
+                normalize(light)
+                light_dp = normal.x * light.x + normal.y * light.y + normal.z * light.z
+                color = (light_dp * 255, light_dp * 255, light_dp * 255)
+                
 
-            # rasterize
-            pygame.draw.polygon(screen, color, fProjected, 2)
+                # converting our 3d coordinates into a 2d space
+                multiply_matrix_vector(triTranslated.vects[0], triProjected.vects[0], self.matProj)
+                multiply_matrix_vector(triTranslated.vects[1], triProjected.vects[1], self.matProj)
+                multiply_matrix_vector(triTranslated.vects[2], triProjected.vects[2], self.matProj)
+
+                # scale
+                mult = 0.5
+
+                triProjected.vects[0].x += 1.0
+                triProjected.vects[0].y += 1.0
+
+                triProjected.vects[1].x += 1.0
+                triProjected.vects[1].y += 1.0
+
+                triProjected.vects[2].x += 1.0
+                triProjected.vects[2].y += 1.0
+
+                triProjected.vects[0].x *= mult * self.screen_width
+                triProjected.vects[0].y *= mult * self.screen_height
+                triProjected.vects[1].x *= mult * self.screen_width
+                triProjected.vects[1].y *= mult * self.screen_height
+                triProjected.vects[2].x *= mult * self.screen_width
+                triProjected.vects[2].y *= mult * self.screen_height
+
+                # converting our 3d coordinates to a 2d space
+                fProjected = [
+                    [triProjected.vects[0].x, triProjected.vects[0].y],
+                    [triProjected.vects[1].x, triProjected.vects[1].y],
+                    [triProjected.vects[2].x, triProjected.vects[2].y]
+                ]
+
+                # rasterize
+                if wireframe:
+                    pygame.draw.polygon(screen, (color), fProjected)
+                    pygame.draw.polygon(screen, (black), fProjected, 2)
+                else:
+                    pygame.draw.polygon(screen, (color), fProjected)

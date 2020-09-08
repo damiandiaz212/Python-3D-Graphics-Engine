@@ -45,11 +45,11 @@ while running:
 
     # updating our theta time
     currentTick = pygame.time.get_ticks()
-    theta = (currentTick - lastTick) / 250
+    theta = (currentTick - lastTick) / 500
     lastTick = currentTick
 
     # call engine
-    engine.on_user_update(screen, white, theta)
+    engine.on_user_update(screen, theta)
 
     # update screen
     pygame.display.update()

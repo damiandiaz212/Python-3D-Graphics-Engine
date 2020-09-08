@@ -1,3 +1,4 @@
+import math
 
 """
 
@@ -29,3 +30,16 @@ def mat4x4():
         [0, 0, 0, 0]
     ]
     return t
+
+def normalize(vector3d):
+    l = math.sqrt(vector3d.x * vector3d.x + vector3d.y * vector3d.y + vector3d.z * vector3d.z)
+    vector3d.x /= l
+    vector3d.y /= l
+    vector3d.z /= l
+
+def dot_product(vector3d, triTranslated, camera):
+    return (
+        vector3d.x * (triTranslated.vects[0].x - camera.x) +
+        vector3d.y * (triTranslated.vects[0].y - camera.y) +
+        vector3d.z * (triTranslated.vects[0].z - camera.z)
+        )

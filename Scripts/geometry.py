@@ -9,7 +9,7 @@ Defines our fundemental geometry objects.
 
 class Vector:
     
-    def __init__(self, x, y, z):
+    def __init__(self, x=0, y=0, z=0):
         self.x = x
         self.y = y
         self.z = z
@@ -24,12 +24,17 @@ class Triangle:
         # triangle store 3 vectors
         self.vects = [Vector(0.0, 0.0, 0.0), Vector(0.0, 0.0, 0.0), Vector(0.0, 0.0, 0.0)]
         
+        
 
 class Mesh:
 
     def __init__(self):
         # mesh stores an array of triangles
         self.tris = []
+
+    def load_from_obj(self, file):
+
+        return True
 
 
 # create_mesh transforms raw coordinates into mesh objects
