@@ -1,4 +1,4 @@
 .vscode/
 __pycache__/
 venv/
-./Scripts/__pycache__
+./Scripts/__pycache__/
