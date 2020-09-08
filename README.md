@@ -1,6 +1,8 @@
 # Python 3D Graphics Engine
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+
+[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 
 3D graphics engine built entirely in python! Pygame is currently the only library being used only for UI and drawing pixels, since pygame only supports 2D alot of math is involved in projection. All mesh creation, translation, rotation is done by me. Ideally down the line I would like to create a simple system for UI and drawing pixels to replace pygame.
 
