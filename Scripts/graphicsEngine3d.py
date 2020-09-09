@@ -2,7 +2,7 @@ import math
 import pygame
 import copy
 from Scripts.geometry import *
-from Scripts.utility import *
+from Scripts.utility_functions import *
 from Lib.primitives import *
 from Lib.colors import *
 import operator
