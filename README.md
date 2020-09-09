@@ -4,7 +4,7 @@
 
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 
-3D graphics engine built entirely in python! Pygame is currently the only library being used only for UI and drawing pixels, since pygame only supports 2D alot of math is involved in projection. All mesh creation, translation, rotation is done by me. Ideally down the line I would like to create a simple system for UI and drawing pixels to replace pygame.
+3D graphics engine built entirely in python! Pygame is currently the only library being used only for UI and drawing pixels, since pygame only supports 2D alot of math is involved in projection. All mesh creation, translation, rotation is done by within the graphics3dEngine class. Ideally down the line I would like to create a simple system for UI and drawing pixels to replace pygame.
 
 This project is heavily influenced by javidx9's code for a custom graphics engine in C++! Check out his channel [here](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA)
 
