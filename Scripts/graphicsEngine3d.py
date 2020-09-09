@@ -3,7 +3,7 @@ import pygame
 import copy
 from Scripts.geometry import *
 from Scripts.projection import *
-from Lib.primitaves import *
+from Lib.primitives import *
 from Lib.colors import *
 import operator
 from operator import attrgetter
