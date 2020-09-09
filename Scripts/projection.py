@@ -32,10 +32,15 @@ def mat4x4():
     return t
 
 def normalize(vector3d):
-    l = math.sqrt(vector3d.x * vector3d.x + vector3d.y * vector3d.y + vector3d.z * vector3d.z)
-    vector3d.x /= l
-    vector3d.y /= l
-    vector3d.z /= l
+    l = float(math.sqrt(vector3d.x * vector3d.x + vector3d.y * vector3d.y + vector3d.z * vector3d.z))
+    if l != 0:
+        vector3d.x /= l
+        vector3d.y /= l
+        vector3d.z /= l
+    else:
+        vector3d.x = 0 
+        vector3d.y = 0
+        vector3d.z = 0
 
 def dot_product(vector3d, triTranslated, camera):
     return (

@@ -2,6 +2,7 @@ import pygame
 import math
 from datetime import datetime
 from Scripts.graphicsEngine3d import ge3d
+from Scripts.geometry import Mesh
 from Lib.colors import *
 
 
@@ -22,7 +23,7 @@ height = 600
 # window setup
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Graphics Engine")
-icon = pygame.image.load('cube_blue.png')
+icon = pygame.image.load('icons/blockchain.png')
 pygame.display.set_icon(icon)
 
 # initialize graphics engine
@@ -49,6 +50,7 @@ while running:
     lastTick = currentTick
 
     # call engine
+    # to view wireframe add the arg True
     engine.on_user_update(screen, theta)
 
     # update screen

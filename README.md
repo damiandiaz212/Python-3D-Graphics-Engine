@@ -13,6 +13,7 @@ This project is heavily influenced by javidx9's code for a custom graphics engin
   - Faces and normals
   - VERY simple Illumination
   - Wireframe mode
+  - Custom meshes from .obj files
 
 ### Installation
 
@@ -35,7 +36,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 ## Todos
 
- - Able to import .obj files
+ - Movable camera
  - Optimize graphicsEngine3d.py
 
 ## License
