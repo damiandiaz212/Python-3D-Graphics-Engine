@@ -2,11 +2,12 @@ import math
 import pygame
 import copy
 from Scripts.geometry import *
-from Scripts.projection import *
+from Scripts.utility import *
 from Lib.primitives import *
 from Lib.colors import *
 import operator
 from operator import attrgetter
+
 
 """
 
@@ -18,91 +19,91 @@ the meat and potatoes
 """
 
 
-class ge3d:
+class GraphicsEngine:
 
     def __init__(self, width, height):
         self.screen_width = width
         self.screen_height = height
         self.mesh = Mesh()
-        self.matProj = mat4x4()
-        self.fTheta = 0
+        self.mat_projection = mat_4x4()
+        self.f_theta = 0
 
     def on_user_create(self):
 
         # create a cube mesh
-        #self.mesh = create_cube(cube)
+        #self.mesh = create_cube()
 
         # create ship mesh
         self.mesh = load_from_obj('ship.obj')
 
         # projection matrix
-        fNear = 0.1
-        fFar = 1000.0
-        fFov = 90.0
-        fAspectRatio = self.screen_height / self.screen_width
-        fFovRad = 1.0 / float(math.tan(fFov * 0.5 / 180.0 * math.pi))
+        f_near = 0.1
+        f_far = 1000.0
+        f_fov = 90.0
+        f_aspect_ratio = self.screen_height / self.screen_width
+        f_fov_rad = 1.0 / float(math.tan(f_fov * 0.5 / 180.0 * math.pi))
 
-        self.matProj[0][0] = fAspectRatio * fFovRad
-        self.matProj[1][1] = fFovRad
-        self.matProj[2][2] = fFar / (fFar - fNear)
-        self.matProj[3][2] = (-fFar * fNear) / (fFar - fNear)
-        self.matProj[2][3] = 1.0
-        self.matProj[3][3] = 0.0
+        self.mat_projection[0][0] = f_aspect_ratio * f_fov_rad
+        self.mat_projection[1][1] = f_fov_rad
+        self.mat_projection[2][2] = f_far / (f_far - f_near)
+        self.mat_projection[3][2] = (-f_far * f_near) / (f_far - f_near)
+        self.mat_projection[2][3] = 1.0
+        self.mat_projection[3][3] = 0.0
 
         return True
 
-    def on_user_update(self, screen, fElapsedTime, wireframe=False) -> bool:
+    def on_user_update(self, screen, f_elapsed_time, wire_mode=False) -> bool:
 
         # rotation matrices
-        matRotZ = mat4x4()
-        matRotX = mat4x4()
+        mat_rot_z = mat_4x4()
+        mat_rot_x = mat_4x4()
 
-        self.fTheta += 1.0 * fElapsedTime
+        self.f_theta += 1.0 * f_elapsed_time
 
         # rotation z
-        matRotZ[0][0] = math.cos(self.fTheta)
-        matRotZ[0][1] = math.sin(self.fTheta)
-        matRotZ[1][0] = -math.sin(self.fTheta)
-        matRotZ[1][1] = math.cos(self.fTheta)
-        matRotZ[2][2] = 1
-        matRotZ[3][3] = 1
+        mat_rot_z[0][0] = math.cos(self.f_theta)
+        mat_rot_z[0][1] = math.sin(self.f_theta)
+        mat_rot_z[1][0] = -math.sin(self.f_theta)
+        mat_rot_z[1][1] = math.cos(self.f_theta)
+        mat_rot_z[2][2] = 1
+        mat_rot_z[3][3] = 1
 
         # rotation x
-        matRotX[0][0] = 1
-        matRotX[1][1] = math.cos(self.fTheta * 0.5)
-        matRotX[1][2] = math.sin(self.fTheta * 0.5)
-        matRotX[2][1] = -math.sin(self.fTheta * 0.5)
-        matRotX[2][2] = math.cos(self.fTheta * 0.5)
-        matRotX[3][3] = 1
+        mat_rot_x[0][0] = 1
+        mat_rot_x[1][1] = math.cos(self.f_theta * 0.5)
+        mat_rot_x[1][2] = math.sin(self.f_theta * 0.5)
+        mat_rot_x[2][1] = -math.sin(self.f_theta * 0.5)
+        mat_rot_x[2][2] = math.cos(self.f_theta * 0.5)
+        mat_rot_x[3][3] = 1
 
-        trisToRaster = []
+        tris_to_raster = []
 
         # draw triangle
         for i in self.mesh.tris:
 
             tri = copy.deepcopy(i)
-            triProjected = Triangle()
-            triRotatedZ = Triangle()
-            triRotatedZX = Triangle()
+            tri_projected = Triangle()
+            tri_rotated_z = Triangle()
+            tri_rotated_zx = Triangle()
 
             # rotate z
-            multiply_matrix_vector(tri.vects[0], triRotatedZ.vects[0], matRotZ)
-            multiply_matrix_vector(tri.vects[1], triRotatedZ.vects[1], matRotZ)
-            multiply_matrix_vector(tri.vects[2], triRotatedZ.vects[2], matRotZ)
+            multiply_matrix_vector(tri.vectors[0], tri_rotated_z.vectors[0], mat_rot_z)
+            multiply_matrix_vector(tri.vectors[1], tri_rotated_z.vectors[1], mat_rot_z)
+            multiply_matrix_vector(tri.vectors[2], tri_rotated_z.vectors[2], mat_rot_z)
 
             # rotate x
             multiply_matrix_vector(
-                triRotatedZ.vects[0], triRotatedZX.vects[0], matRotX)
+                tri_rotated_z.vectors[0], tri_rotated_zx.vectors[0], mat_rot_x)
             multiply_matrix_vector(
-                triRotatedZ.vects[1], triRotatedZX.vects[1], matRotX)
+                tri_rotated_z.vectors[1], tri_rotated_zx.vectors[1], mat_rot_x)
             multiply_matrix_vector(
-                triRotatedZ.vects[2], triRotatedZX.vects[2], matRotX)
+                tri_rotated_z.vectors[2], tri_rotated_zx.vectors[2], mat_rot_x)
 
             # Offset into the screen
-            triTranslated = copy.deepcopy(triRotatedZX)
-            triTranslated.vects[0].z = triRotatedZX.vects[0].z + 8
-            triTranslated.vects[1].z = triRotatedZX.vects[1].z + 8
-            triTranslated.vects[2].z = triRotatedZX.vects[2].z + 8
+            tri_translated = copy.deepcopy(tri_rotated_zx)
+            tri_translated.vectors[0].z = tri_rotated_zx.vectors[0].z + 8
+            tri_translated.vectors[1].z = tri_rotated_zx.vectors[1].z + 8
+            tri_translated.vectors[2].z = tri_rotated_zx.vectors[2].z + 8
 
             # Normals
             normal = Vector()
@@ -111,13 +112,13 @@ class ge3d:
             line2 = Vector()
             camera = Vector()
 
-            line1.x = triTranslated.vects[1].x - triTranslated.vects[0].x
-            line1.y = triTranslated.vects[1].y - triTranslated.vects[0].y
-            line1.z = triTranslated.vects[1].z - triTranslated.vects[0].z
+            line1.x = tri_translated.vectors[1].x - tri_translated.vectors[0].x
+            line1.y = tri_translated.vectors[1].y - tri_translated.vectors[0].y
+            line1.z = tri_translated.vectors[1].z - tri_translated.vectors[0].z
 
-            line2.x = triTranslated.vects[2].x - triTranslated.vects[0].x
-            line2.y = triTranslated.vects[2].y - triTranslated.vects[0].y
-            line2.z = triTranslated.vects[2].z - triTranslated.vects[0].z
+            line2.x = tri_translated.vectors[2].x - tri_translated.vectors[0].x
+            line2.y = tri_translated.vectors[2].y - tri_translated.vectors[0].y
+            line2.z = tri_translated.vectors[2].z - tri_translated.vectors[0].z
 
             normal.x = line1.y * line2.z - line1.z * line2.y
             normal.y = line1.z * line2.x - line1.x * line2.z
@@ -125,65 +126,65 @@ class ge3d:
             normalize(normal)
 
             # dot product
-            normal_dp = dot_product(normal, triTranslated, camera)
+            normal_dp = dot_product(normal, tri_translated, camera)
 
-            # display verts that exist behind normals
+            # display vertices that exist behind normals
             if normal_dp < 0.0:
 
-                # illumintaion
+                # illumination
                 light = Vector(0, 0, -1)
                 normalize(light)
                 light_dp = max(0, (normal.x * light.x + normal.y * light.y + normal.z * light.z))
                 
                 color = (light_dp * 255 , light_dp * 255, light_dp * 255)
-                triProjected.color = color
+                tri_projected.color = color
 
                 # converting our 3d coordinates into a 2d space
                 multiply_matrix_vector(
-                    triTranslated.vects[0], triProjected.vects[0], self.matProj)
+                    tri_translated.vectors[0], tri_projected.vectors[0], self.mat_projection)
                 multiply_matrix_vector(
-                    triTranslated.vects[1], triProjected.vects[1], self.matProj)
+                    tri_translated.vectors[1], tri_projected.vectors[1], self.mat_projection)
                 multiply_matrix_vector(
-                    triTranslated.vects[2], triProjected.vects[2], self.matProj)
+                    tri_translated.vectors[2], tri_projected.vectors[2], self.mat_projection)
 
                 # scale
-                triProjected.vects[0].x += 1.0
-                triProjected.vects[0].y += 1.0
+                tri_projected.vectors[0].x += 1.0
+                tri_projected.vectors[0].y += 1.0
 
-                triProjected.vects[1].x += 1.0
-                triProjected.vects[1].y += 1.0
+                tri_projected.vectors[1].x += 1.0
+                tri_projected.vectors[1].y += 1.0
 
-                triProjected.vects[2].x += 1.0
-                triProjected.vects[2].y += 1.0
+                tri_projected.vectors[2].x += 1.0
+                tri_projected.vectors[2].y += 1.0
 
-                triProjected.vects[0].x *= 0.5 * self.screen_width
-                triProjected.vects[0].y *= 0.5 * self.screen_height
-                triProjected.vects[1].x *= 0.5 * self.screen_width
-                triProjected.vects[1].y *= 0.5 * self.screen_height
-                triProjected.vects[2].x *= 0.5 * self.screen_width
-                triProjected.vects[2].y *= 0.5 * self.screen_height
+                tri_projected.vectors[0].x *= 0.5 * self.screen_width
+                tri_projected.vectors[0].y *= 0.5 * self.screen_height
+                tri_projected.vectors[1].x *= 0.5 * self.screen_width
+                tri_projected.vectors[1].y *= 0.5 * self.screen_height
+                tri_projected.vectors[2].x *= 0.5 * self.screen_width
+                tri_projected.vectors[2].y *= 0.5 * self.screen_height
 
-                z = float(triProjected.vects[0].z + triProjected.vects[1].z + triProjected.vects[2].z) / 3
-                triProjected.midpoint = z
+                z = float(tri_projected.vectors[0].z + tri_projected.vectors[1].z + tri_projected.vectors[2].z) / 3
+                tri_projected.midpoint = z
 
-                trisToRaster.append(triProjected)
+                tris_to_raster.append(tri_projected)
 
+        # render order back to front
+        render_order = sorted(tris_to_raster, key=operator.attrgetter("midpoint"), reverse=True)
 
-        renderOrder = sorted(
-            trisToRaster, key=operator.attrgetter("midpoint"), reverse=True)
-
-        for x in renderOrder:
+        for x in render_order:
 
             # converting our 3d coordinates to a 2d space
-            fProjected = [
-                [x.vects[0].x, x.vects[0].y],
-                [x.vects[1].x, x.vects[1].y],
-                [x.vects[2].x, x.vects[2].y]
+            f_projected = [
+                [x.vectors[0].x, x.vectors[0].y],
+                [x.vectors[1].x, x.vectors[1].y],
+                [x.vectors[2].x, x.vectors[2].y]
             ]
 
-            c = x.color
+            color = x.color
 
-            if wireframe:
-                pygame.draw.polygon(screen, white, fProjected, 2)
+            # draw final tri
+            if wire_mode:
+                pygame.draw.polygon(screen, white, f_projected, 2)
             else:
-                pygame.draw.polygon(screen, c, fProjected)
+                pygame.draw.polygon(screen, color, f_projected)

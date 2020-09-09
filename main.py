@@ -1,19 +1,10 @@
 import pygame
 import math
 from datetime import datetime
-from Scripts.graphicsEngine3d import ge3d
+from Scripts.graphicsEngine3d import GraphicsEngine
 from Scripts.geometry import Mesh
 from Lib.colors import *
 
-
-"""
-
-main.py
-author: Damian Diaz
-
-defines and initializes the graphicsEngine3d and pygame window
-
-"""
 
 # initialize pygame
 pygame.init()
@@ -22,12 +13,12 @@ height = 600
 
 # window setup
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Graphics Engine")
-icon = pygame.image.load('icons/blockchain.png')
+pygame.display.set_caption("Python 3D Graphics Engine")
+icon = pygame.image.load('icons/cube.png')
 pygame.display.set_icon(icon)
 
 # initialize graphics engine
-engine = ge3d(width, height)
+engine = GraphicsEngine(width, height)
 engine.on_user_create()
 
 lastTick = pygame.time.get_ticks()
@@ -46,7 +37,7 @@ while running:
 
     # updating our theta time
     currentTick = pygame.time.get_ticks()
-    theta = (currentTick - lastTick) / 500
+    theta = (currentTick - lastTick) / 600
     lastTick = currentTick
 
     # call engine
@@ -55,6 +46,7 @@ while running:
 
     # update screen
     pygame.display.update()
+
 
   
     
